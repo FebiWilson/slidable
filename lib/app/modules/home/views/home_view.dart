@@ -11,202 +11,187 @@ import '../controllers/home_controller.dart';
 class HomeView extends GetView<HomeController> {
   HomeView({Key? key}) : super(key: key);
   final textTheme = ThemeData().textTheme;
-  final WorkoutLog workoutLog = WorkoutLog(
-                        id: "id",
-                        date: "",
-                        day: 9,
-                        exerciseArray: [
-                          WorkoutLogEntry(workoutName: "Plank", muscleGroup: "Abs", warmUpRows: [SetRow(weight: 5, reps: 10)], setRows: [SetRow(weight: 5, reps: 15)], notes: "")
-                        ]);
+  final WorkoutLog workoutLog =
+      WorkoutLog(id: "id", date: "", day: 9, exerciseArray: [
+    WorkoutLogEntry(
+        workoutName: "Plank",
+        muscleGroup: "Abs",
+        warmUpRows: [SetRow(weight: 5, reps: 10)],
+        setRows: [SetRow(weight: 5, reps: 15)],
+        notes: "")
+  ]);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-                    body: SingleChildScrollView(
-                        child: Column(
-                                children: [
-                                  GetBuilder<HomeController>(
-                                    builder: (controller) {
-                                      return ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: workoutLog.exerciseArray.length,
-                                        itemBuilder: (context, index) {
-                                          final entry = workoutLog.exerciseArray[index];
-                                          return _buildWorkoutLogEntryCard(
-                                            context,
-                                            entry,
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: TextButton(
-                                      style: ButtonStyle(
-                                          padding:
-                                              MaterialStateProperty.all<EdgeInsets>(
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 70,
-                                                      vertical: 8)),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Color(0xFF485946)),
-                                          shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(30)))),
-                                      onPressed: () {
-                                        // pageController.nextPage(
-                                        //     duration: const Duration(
-                                        //         milliseconds: 200),
-                                        //     curve: Curves.easeOut);
-                                      },
-                                      child: Text(
-                                        "Add Exercise",
-                                        style: textTheme.bodyMedium!.copyWith(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 50,
-                                  )
-                                ],
-                              )
-                         
-                  ),
+      body: SingleChildScrollView(
+          child: Column(
+        children: [
+          GetBuilder<HomeController>(
+            builder: (controller) {
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: workoutLog.exerciseArray.length,
+                itemBuilder: (context, index) {
+                  final entry = workoutLog.exerciseArray[index];
+                  return _buildWorkoutLogEntryCard(
+                    context,
+                    entry,
+                  );
+                },
+              );
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextButton(
+              style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsets>(
+                      EdgeInsets.symmetric(horizontal: 70, vertical: 8)),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Color(0xFF485946)),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)))),
+              onPressed: () {
+                // pageController.nextPage(
+                //     duration: const Duration(
+                //         milliseconds: 200),
+                //     curve: Curves.easeOut);
+              },
+              child: Text(
+                "Add Exercise",
+                style: textTheme.bodyMedium!.copyWith(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 50,
+          )
+        ],
+      )),
     );
   }
-    Widget _buildWorkoutLogEntryCard(
+
+  Widget _buildWorkoutLogEntryCard(
       BuildContext context, WorkoutLogEntry entry) {
+    bool isSlidableOpen = false; // To control whether the Slidable is open
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0), // Set the border radius here
+        borderRadius: BorderRadius.circular(10.0),
       ),
       margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
       color: Colors.white,
       surfaceTintColor: Colors.white,
       shadowColor: Colors.white,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-        title: Slidable(
-          startActionPane: null,
-          endActionPane: ActionPane(
-            motion: const StretchMotion(),
-            extentRatio: 0.6,
-            children: [
-              AASlidableAction(
-                  backgroundColor: Colors.blueGrey,
-                  onPressed: (context) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AddNoteDialog(
-                            workoutLogEntry: entry,
-                            note: entry.notes,
-                          );
-                        });
-                  },
-                  flex: 1,
-                  label: "Notes",
-                  icon: Icon(
-                    entry.notes == ""
-                        ? FontAwesomeIcons.pen
-                        : FontAwesomeIcons.eye,
-                    size: 10,
-                  )),
-              SlidableAction(
-                flex: 1,
-                backgroundColor: Colors.red,
-                onPressed: (context) {
-                  // controller.deleteEntry(entry);
-                },
-                icon: Icons.delete,
+      child: GestureDetector(
+        // GestureDetector to capture swipe gestures
+        onHorizontalDragUpdate: (details) {
+          if (details.delta.dx > 0) {
+            // Swiping right
+            isSlidableOpen = true;
+            print(true);
+          } else if (details.delta.dx < 0) {
+            // Swiping left
+            isSlidableOpen = false;
+            print(false);
+          }
+          controller.update();
+        },
+        child: Stack(
+          children: [
+            if (isSlidableOpen)
+              Slidable(
+                endActionPane: ActionPane(
+                  motion: const StretchMotion(),
+                  extentRatio: 0.6,
+                  children: [
+                    SlidableAction(
+                      flex: 1,
+                      backgroundColor: Colors.red,
+                      onPressed: (context) {
+                        // Handle action
+                      },
+                      icon: Icons.delete,
+                    ),
+                  ],
+                ),
+                child:
+                    Container(), // You can use an empty container as the child
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(width: 5),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Text(
-                            entry.workoutName,
-                            overflow: TextOverflow.visible,
-                            textAlign: TextAlign.left,
-                            style: textTheme.headlineMedium!.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+              title: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                entry.workoutName,
+                                overflow: TextOverflow.visible,
+                                textAlign: TextAlign.left,
+                                style: textTheme.headlineMedium!.copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      FontAwesomeIcons.arrowLeft,
+                      size: 15,
+                    )
+                  ],
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          // Handle button tap
+                        },
+                        child: Text(
+                          "+ Warm Up",
+                          style: textTheme.headlineMedium!.copyWith(
+                            color: Color(0xFF485946),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                Icon(
-                  FontAwesomeIcons.arrowLeft,
-                  size: 15,
-                )
-              ],
-            ),
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextButton(
-                    onPressed: () {
-                      // controller.addWarmUpRow(
-                      //     entry, SetRow(weight: 0, reps: 0));
-                    },
-                    child: Text(
-                      "+ Warm Up",
-                      style: textTheme.headlineMedium!.copyWith(
-                        color: Color(0xFF485946),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    )),
-              ],
-            ),
-            const Divider(
-              color: Colors.grey,
-              height: 1.0,
-              thickness: 0.25,
-            ),
-            _buildWarmUpList(context, entry.warmUpRows, entry, true),
-            _buildWarmUpList(context, entry.setRows, entry, false),
-            TextButton(
-                onPressed: () {
-                  // controller.addSetRow(entry, SetRow(weight: 0, reps: 0));
-                },
-                child: Text(
-                  "+ Set",
-                  style: textTheme.headlineMedium!.copyWith(
-                    color: Color(0xFF485946),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  const Divider(
+                    color: Colors.grey,
+                    height: 1.0,
+                    thickness: 0.25,
                   ),
-                )),
+                  _buildWarmUpList(context, entry.warmUpRows, entry, true),
+                  _buildWarmUpList(context, entry.setRows, entry, false),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -311,9 +296,7 @@ class HomeView extends GetView<HomeController> {
                                     width: 60,
                                     child: TextFormField(
                                       decoration: const InputDecoration(
-                                        isDense: true,
-                                        suffixText: 'kg'
-                                      ),
+                                          isDense: true, suffixText: 'kg'),
                                       controller: _weightcontrollers[index],
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.end,
@@ -333,7 +316,7 @@ class HomeView extends GetView<HomeController> {
                                       },
                                     ),
                                   ),
-                                  ],
+                                ],
                               ),
                             ),
                             const SizedBox(width: 30.0),
@@ -346,17 +329,19 @@ class HomeView extends GetView<HomeController> {
                                     width: 50,
                                     child: TextFormField(
                                       decoration: InputDecoration(
-                                        suffixText: entry.isUnitInSecs ? 's' : 'reps',
+                                        suffixText:
+                                            entry.isUnitInSecs ? 's' : 'reps',
                                       ),
                                       controller: _repcontrollers[index],
                                       onTap: () {
                                         _repcontrollers[index].selection =
                                             TextSelection(
                                                 baseOffset: 0,
-                                                extentOffset: _repcontrollers[index]
-                                                    .value
-                                                    .text
-                                                    .length);
+                                                extentOffset:
+                                                    _repcontrollers[index]
+                                                        .value
+                                                        .text
+                                                        .length);
                                       },
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.right,
@@ -389,6 +374,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 }
+
 class AddNoteDialog extends StatefulWidget {
   const AddNoteDialog({
     Key? key,
