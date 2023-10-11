@@ -200,6 +200,7 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildWarmUpList(BuildContext context, List<SetRow> rows,
       WorkoutLogEntry entry, bool isWarmUp) {
+    bool isSlidableOpen = true;
     return GetBuilder<HomeController>(
       builder: (controller) {
         List<TextEditingController> _weightcontrollers =
@@ -218,155 +219,172 @@ class HomeView extends GetView<HomeController> {
             _repcontrollers
                 .add(TextEditingController(text: row.reps.toString()));
 
-            return Slidable(
-              startActionPane: null,
-              endActionPane: ActionPane(
-                motion: const StretchMotion(),
-                extentRatio: 0.25,
-                children: [
-                  SlidableAction(
-                    backgroundColor: Colors.red,
-                    icon: Icons.delete,
-                    onPressed: (context) {
-                      // isWarmUp
-                      //     ? controller.deleteWarmUpRow(entry, index)
-                      //     : controller.deleteSetRow(entry, index);
-                    },
+            return GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                if (details.delta.dx > 0) {
+                  // Swiping right
+                  isSlidableOpen = true;
+                  print("true");
+                } else if (details.delta.dx < 0) {
+                  // Swiping left
+                  isSlidableOpen = false;
+                  print("false");
+                }
+                controller.update();
+              },
+              child: Stack(
+                children: [Slidable(
+                  enabled: false,
+                  startActionPane: null,
+                  endActionPane: ActionPane(
+                    motion: const StretchMotion(),
+                    extentRatio: 0.25,
+                    children: [
+                      SlidableAction(
+                        backgroundColor: Colors.red,
+                        icon: Icons.delete,
+                        onPressed: (context) {
+                          // isWarmUp
+                          //     ? controller.deleteWarmUpRow(entry, index)
+                          //     : controller.deleteSetRow(entry, index);
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    dense: true,
-                    minVerticalPadding: 0,
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        width: 35,
-                        height: 35,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                                color: Colors.white,
-                                offset: Offset(2, 2),
-                                blurRadius: 10.0),
-                          ],
-                        ),
-                        child: isWarmUp
-                            ? ColorFiltered(
-                                colorFilter: const ColorFilter.mode(
-                                    Colors.black, BlendMode.srcIn),
-                                child: Image.asset(
-                                  'assets/stretch.png',
-                                  height: 15,
-                                  width: 15,
-                                ))
-                            : Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '${index + 1}',
-                                  style: textTheme.headlineMedium!.copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ))),
-                    title: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        dense: true,
+                        minVerticalPadding: 0,
+                        contentPadding: EdgeInsets.zero,
+                        leading: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            width: 35,
+                            height: 35,
+                            decoration: const BoxDecoration(
                               color: Colors.white,
-                              offset: Offset(2, 2),
-                              blurRadius: 10.0),
-                        ],
-                      ),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 30.0),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 60,
-                                    child: TextFormField(
-                                      decoration: const InputDecoration(
-                                          isDense: true, suffixText: 'kg'),
-                                      controller: _weightcontrollers[index],
-                                      keyboardType: TextInputType.number,
-                                      textAlign: TextAlign.end,
-                                      onTap: () {
-                                        _weightcontrollers[index].selection =
-                                            TextSelection(
-                                                baseOffset: 0,
-                                                extentOffset:
-                                                    _weightcontrollers[index]
-                                                        .value
-                                                        .text
-                                                        .length);
-                                      },
-                                      onChanged: (value) {
-                                        // controller.updateWeight(
-                                        //     row, double.tryParse(value) ?? 0);
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                    color: Colors.white,
+                                    offset: Offset(2, 2),
+                                    blurRadius: 10.0),
+                              ],
                             ),
-                            const SizedBox(width: 30.0),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 50,
-                                    child: TextFormField(
-                                      decoration: InputDecoration(
-                                        suffixText:
-                                            entry.isUnitInSecs ? 's' : 'reps',
+                            child: isWarmUp
+                                ? ColorFiltered(
+                                    colorFilter: const ColorFilter.mode(
+                                        Colors.black, BlendMode.srcIn),
+                                    child: Image.asset(
+                                      'assets/stretch.png',
+                                      height: 15,
+                                      width: 15,
+                                    ))
+                                : Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: textTheme.headlineMedium!.copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      controller: _repcontrollers[index],
-                                      onTap: () {
-                                        _repcontrollers[index].selection =
-                                            TextSelection(
-                                                baseOffset: 0,
-                                                extentOffset:
-                                                    _repcontrollers[index]
-                                                        .value
-                                                        .text
-                                                        .length);
-                                      },
-                                      keyboardType: TextInputType.number,
-                                      textAlign: TextAlign.right,
-                                      onChanged: (value) {
-                                        // controller.updateReps(
-                                        //     row, int.tryParse(value) ?? 0);
-                                      },
-                                    ),
+                                    ))),
+                        title: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                  color: Colors.white,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 10.0),
+                            ],
+                          ),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 30.0),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 60,
+                                        child: TextFormField(
+                                          decoration: const InputDecoration(
+                                              isDense: true, suffixText: 'kg'),
+                                          controller: _weightcontrollers[index],
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.end,
+                                          onTap: () {
+                                            _weightcontrollers[index].selection =
+                                                TextSelection(
+                                                    baseOffset: 0,
+                                                    extentOffset:
+                                                        _weightcontrollers[index]
+                                                            .value
+                                                            .text
+                                                            .length);
+                                          },
+                                          onChanged: (value) {
+                                            // controller.updateWeight(
+                                            //     row, double.tryParse(value) ?? 0);
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(width: 30.0),
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 50,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            suffixText:
+                                                entry.isUnitInSecs ? 's' : 'reps',
+                                          ),
+                                          controller: _repcontrollers[index],
+                                          onTap: () {
+                                            _repcontrollers[index].selection =
+                                                TextSelection(
+                                                    baseOffset: 0,
+                                                    extentOffset:
+                                                        _repcontrollers[index]
+                                                            .value
+                                                            .text
+                                                            .length);
+                                          },
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.right,
+                                          onChanged: (value) {
+                                            // controller.updateReps(
+                                            //     row, int.tryParse(value) ?? 0);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 30.0),
+                              ],
                             ),
-                            const SizedBox(width: 30.0),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
+                      const Divider(
+                        color: Colors.grey,
+                        height: 1.0,
+                        thickness: 0.25,
+                      ),
+                    ],
                   ),
-                  const Divider(
-                    color: Colors.grey,
-                    height: 1.0,
-                    thickness: 0.25,
-                  ),
-                ],
-              ),
+                ),
+              ]),
             );
           },
         );
